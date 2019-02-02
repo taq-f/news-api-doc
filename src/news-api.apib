@@ -1,0 +1,122 @@
+FORMAT: 1A
+
+# お知らせ配信API
+
+サービスのお知らせを配信するAPIです。
+
+管理者向けにお知らせの追加／更新／削除機能を、一般ユーザー向けにお知らせの取得／既読機能を提供します。
+
+Authorizationヘッダに認証トークン（JWT）を含めることで認証の有無、既読対象等の判断を行います。
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5c...
+```
+
+# Group お知らせ
+
+## お知らせ一覧 [/api/news]
+
+お知らせ全体に対する操作を実行します。
+
+### 現在有効なお知らせ一覧を取得します [GET]
+
+`read`はユーザー毎の既読状態です。
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "001",
+                "title": "さらなるバージョンアップのお知らせ",
+                "new": true,
+                "read": false
+            }
+        ]
+
+### お知らせを作成する [POST]
+
+お知らせを作成します。お知らせの内容とフォーマットを記述したJSONを受け取ります。
+
++ Request (application/json)
+
+        {
+            "title": "さらなるバージョンアップのお知らせ",
+            "content": "# さらなるバージョンアップのお知らせ\n\nバージョンがあがりました！",
+            "format": "markdown",
+            "starts_at": "20190101000000",
+            "ends_at": "20190131125959"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /api/news/002
+
+    + Body
+
+            {
+                "id": "002",
+                "url": "/api/news/002",
+                "title": "さらなるバージョンアップのお知らせ"
+            }
+
+## お知らせ [/api/news/{news_id}]
+
+単一のお知らせに対する操作を行います。
+
++ Parameters
+    + news_id (required, string) - お知らせID
+
+### お知らせの詳細を取得します [GET]
+
++ Response 200 (application/json)
+
+        {
+            "id": "003",
+            "created_at": "2019-01-01T08:40:51.620Z",
+            "url": "/api/news/003",
+            "title": "さらなるバージョンアップのお知らせ",
+            "content": "# バージョンがあがりました！\n* あれがこうなって\n* これがああなって",
+            "format": "markdown"
+        }
+
+### お知らせを更新します [POST]
+
+更新しない属性はリクエストのJSONに含めないでください。
+
++ Request (application/json)
+
+        {
+            "title": "さらなるバージョンアップのお知らせ",
+        }
+
++ Response 204
+
+### お知らせを削除します [DELETE]
+
++ Response 204
+
+## お知らせの未読/既読状態操作 [/api/news/{news_id}/read]
+
++ Parameters
+    + news_id (required, string) - お知らせID
+
+### お知らせが既読か確認します [GET]
+
+未読、既読はステータスコードで判断します。
+
+* 404: 未読
+* 204: 既読
+
++ Response 404
+
++ Response 204
+
+### お知らせを既読にします [PUT]
+
++ Response 204
+
+### お知らせを未読にします [DELETE]
+
++ Response 204
